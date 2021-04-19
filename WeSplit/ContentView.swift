@@ -12,6 +12,13 @@ struct ContentView: View {
     @State private var numberOfPeople = "2"
     @State private var tipPercentage = 2
     
+    var useRedText: Bool { if tipPercentage == 4 { //computed var that controls red text for total check amount
+        return true } else {
+            return false
+        }
+    
+    }
+    
     let tipPercentages = [10, 15, 20, 25, 0]
     
     var totalPerPerson: Double {
@@ -56,6 +63,7 @@ struct ContentView: View {
                 
                 Section(header: Text("Total check amount")) {
                     Text("$\(grandTotal, specifier: "%.2f")")
+                        .foregroundColor(useRedText ? .red : .black) //ternary operator to control color of text
                 }
                 
                 
