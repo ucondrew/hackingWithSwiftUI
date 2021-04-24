@@ -22,7 +22,9 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 TextField("Enter your word", text: $newWord, onCommit: addNewWord)
-                    .padding()
+                    .padding([.horizontal, .bottom], 20)
+                    .padding(.top, -10)
+                    
                     .textFieldStyle(RoundedBorderTextFieldStyle()) //form-like cell
                     .autocapitalization(.none)
                 
@@ -33,11 +35,14 @@ struct ContentView: View {
                 }
                 Text("\(score) points")
                     .font(.headline)
+                    .padding(2)
             }
-            .navigationBarTitle(rootWord)
-            .navigationBarItems(leading: Button(action: startGame) {
-                Text("Reset")
-            })
+            //.navigationBarTitle(rootWord)
+            .navigationBarItems(leading: Text(rootWord).font(.largeTitle), trailing: Button(action: startGame) {
+                Image(systemName: "arrow.triangle.2.circlepath")
+            }) .padding(0)
+            
+            
             .onAppear(perform: startGame)// calls startGame() each time navigationView is loaded
             .alert(isPresented: $showingError) {
                 Alert(title: Text(errorTitle), message: Text(errorMessage), dismissButton: .default(Text("OK")))
@@ -48,6 +53,8 @@ struct ContentView: View {
     
     func addNewWord() {
         let answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        //guard lets us trap invalid parameters passed into the methods. Any condition you would have checked using if can be checked using guard.
         
         guard answer.count > 0 else { //if remaining string is empty, exit method
             return
@@ -84,6 +91,7 @@ struct ContentView: View {
                 rootWord = allWords.randomElement() ?? "astraphobia"
                 usedWords = [String]()
                 score = 0
+                newWord = ""
                 //5. everything worked!
                 return
             }
@@ -93,7 +101,7 @@ struct ContentView: View {
     }
     
     func isOriginal(word: String) -> Bool {
-        !usedWords.contains(word)
+        !usedWords.contains(word) //can omit return
     }
     
     func isPossible(word: String) -> Bool {
