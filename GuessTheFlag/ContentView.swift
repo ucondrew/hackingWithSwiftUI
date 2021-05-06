@@ -24,6 +24,11 @@ struct ContentView: View {
     @State private var showingScore = false
     @State private var scoreTitle = ""
     @State private var currentScore = 0
+    @State private var spin = 0.0
+    @State private var animateCorrect = false
+    @State private var animateWrong = false
+    @State private var dragAmount = CGSize.zero
+    
     
     var body: some View {
         ZStack {
@@ -47,6 +52,17 @@ struct ContentView: View {
                         Image(self.countries[number])
                             .modifier(FlagImage())
                     }
+                    .rotation3DEffect(.degrees(number == self.correctAnswer ? spin : 0), axis: (x: 0.0, y: 1.0, z: 0.0))
+                    .opacity(number != self.correctAnswer && self.animateCorrect ? 0.25 : 1)
+                    .overlay(
+                        Capsule()
+                            .fill(Color.red)
+                            .opacity(number != self.correctAnswer && animateWrong ? 0.8 : 0)
+                    )
+                    
+                        
+                    
+                    
                 }
                 Spacer()
                 Text("Score: \(currentScore)")
@@ -59,8 +75,10 @@ struct ContentView: View {
             .alert(isPresented: $showingScore) {
                 Alert(title: Text(scoreTitle), message: Text("Your score is \(currentScore)"), dismissButton: .default(Text("Continue")) {
                     self.askQuestion()
-                })
-            }
+                }
+                )}
+            
+            
         }
         
     }
@@ -68,9 +86,21 @@ struct ContentView: View {
         if number == correctAnswer {
             scoreTitle = "Correct"
             currentScore += 1
+            spin = 0
+            
+            
+            withAnimation(.interpolatingSpring(stiffness: 10, damping: 7)) {
+                self.spin = 360
+                self.animateCorrect = true
+            }
+            
         } else {
             scoreTitle = "Wrong. Thats the flag of \(countries[number])."
             currentScore -= 1
+            
+            withAnimation(.interpolatingSpring(stiffness: 30, damping: 1)) {
+                self.animateWrong = true
+            }
         }
         
         showingScore = true
@@ -79,6 +109,8 @@ struct ContentView: View {
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        animateCorrect = false
+        animateWrong = false
     }
 }
 
