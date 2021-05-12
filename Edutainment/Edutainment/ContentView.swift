@@ -25,6 +25,9 @@ struct ContentView: View {
     
     @State private var gameOver = false
     
+    @State private var isCorrect = false
+    @State private var rotationAmt = 0
+    
     var body: some View {
         
         if gameStarted {
@@ -35,10 +38,11 @@ struct ContentView: View {
                     TextField("Enter your answer", text: $answer)
                         .padding(15)
                         .multilineTextAlignment(.center)
-                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.blue, lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(isCorrect ? Color.green : Color.red, lineWidth: 1))
                             .padding()
                         
                         .keyboardType(.numberPad)
+                        .animation(.spring())
                     
                 Section {
                     Button("Check Answer"){
@@ -46,30 +50,48 @@ struct ContentView: View {
                         self.loadCurrentQuestion()
                         self.answer = ""
                     }
+                    
                         .padding(20)
-                        .background(Color.green)
+                        .background(Color.blue)
                         .foregroundColor(.white)
                         .font(.headline)
                         .clipShape(Capsule())
+                        .animation(.spring())
                     Spacer()
                     Text("Score: \(score)/\(numOfQuestions) Total Questions: \(numOfQuestions)")
+                    
+                        .padding()
+                        .background(Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 30).stroke(isCorrect ? Color.green : Color.red, lineWidth: 3))
+                            .padding()
+                        .animation(.spring())
+                        
+                        
                     Spacer()
                     }
                 }
-                .navigationBarTitle(Text("\(num1) x \(num2)"))
-                .navigationBarItems(trailing: Button(action: {self.gameStarted.toggle()}, label: {
-                    Text("Settings")
+                .navigationBarTitle(Text("What is \(num1) x \(num2)?"))
+                .navigationBarItems(trailing:
+                    Button("Settings") {
+                        withAnimation {
+                            self.gameStarted.toggle()
+                        }
                         
-                }))
+                    }
+                    
+                        
+                )
                 .alert(isPresented: $gameOver, content: {
                     Alert(title: Text("Game Over"), message: Text("Your score was: \(score)/\(numOfQuestions)"), dismissButton: .default(Text("Continue")) {
+                        withAnimation {
                         
                         self.gameStarted.toggle()
+                        }
                         
                     })
                     
                 })
-            }
+            } .transition(.scale)
         } else {
             NavigationView {
                 VStack {
@@ -90,21 +112,25 @@ struct ContentView: View {
                             Text("Max range:  \(maxRange)")
                         }
                     }
+                    
                     Button("Start game") {
-                        self.gameStarted.toggle()
-                        self.loadQuestions()
-                        self.loadCurrentQuestion()
+                        withAnimation {
+                            self.gameStarted.toggle()
+                            self.loadQuestions()
+                            self.loadCurrentQuestion()
+                        }
                     }
                     .padding()
                     .font(.title2)
-                    .background(Color.green)
+                    .background(Color.blue)
                     .foregroundColor(.white)
                     .clipShape(Capsule())
                     
+                    Spacer()
                     
                 }
                 .navigationBarTitle(Text("Multiplication Tables"))
-            }
+            } .transition(.scale)
             
         }
     }
@@ -138,6 +164,9 @@ struct ContentView: View {
         let correctAnswer = num1 * num2
         if Int(answer) == correctAnswer { //correct
             score += 1
+            isCorrect = true
+        } else {
+            isCorrect = false
         }
     }
 }
